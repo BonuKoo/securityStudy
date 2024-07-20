@@ -1,13 +1,15 @@
 package com.study.security.security.provider;
 
 import com.study.security.domain.dto.AccountContext;
+
+import com.study.security.security.details.FormWebAuthenticationDetails;
+import com.study.security.security.exception.SecretException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -23,12 +25,20 @@ public class FormAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         String loginId = authentication.getName();
-        String  password = (String) authentication.getCredentials();
+        String password = (String) authentication.getCredentials();
+
         AccountContext accountContext = (AccountContext) userDetailsService.loadUserByUsername(loginId);
 
         if (!passwordEncoder.matches(password, accountContext.getPassword())){
             throw new BadCredentialsException("Invalid password");
         }
+
+        String secretKey = ((FormWebAuthenticationDetails) authentication.getDetails()).getSecretKey();
+
+        if (secretKey == null || !secretKey.equals("secret")){
+            throw new SecretException("Invalid secret");
+        }
+
 
         return new UsernamePasswordAuthenticationToken(accountContext.getAccountDto(),null,accountContext.getAuthorities());
     }
