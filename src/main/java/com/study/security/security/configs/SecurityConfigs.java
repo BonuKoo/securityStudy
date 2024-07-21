@@ -1,5 +1,6 @@
 package com.study.security.security.configs;
 
+import com.study.security.security.entrypoint.RestAuthenticationEntryPoint;
 import com.study.security.security.filters.RestAuthenticationFilter;
 import com.study.security.security.handler.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,7 +58,6 @@ public class SecurityConfigs {
         return http.build();
     }
 
-
     @Bean
     @Order(1)
     public SecurityFilterChain restSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -70,10 +70,16 @@ public class SecurityConfigs {
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*").permitAll()
+                        .requestMatchers("/api","api/login").permitAll()
+                        .requestMatchers("/api/user").hasAuthority("ROLE_USER")
+                        .requestMatchers("/api/manager").hasAuthority("ROLE_MANAGER")
+                        .requestMatchers("/api/admin").hasAuthority("ROLE_ADMIN")
                         .anyRequest().permitAll())
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(restAuthenticationFilter(http, authenticationManager), UsernamePasswordAuthenticationFilter.class)
                 .authenticationManager(authenticationManager)
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(new RestAuthenticationEntryPoint())
+                .accessDeniedHandler(new RestAccessDeniedHandler()))
         ;
         return http.build();
     }
@@ -84,8 +90,6 @@ public class SecurityConfigs {
         restAuthenticationFilter.setAuthenticationManager(authenticationManager);
         restAuthenticationFilter.setAuthenticationSuccessHandler(restSuccessHandler);
         restAuthenticationFilter.setAuthenticationFailureHandler(restFailureHandler);
-//        restAuthenticationFilter.setSecurityContextRepository(new DelegatingSecurityContextRepository(
-//                new RequestAttributeSecurityContextRepository(), new HttpSessionSecurityContextRepository()));
 
         return restAuthenticationFilter;
     }
