@@ -26,8 +26,8 @@ public class RestAuthenticationFailureHandler implements AuthenticationFailureHa
         if (exception instanceof BadCredentialsException) {
             mapper.writeValue(response.getWriter(), "Invalid username or password");
 
-        }
-        mapper.writeValue(response.getWriter(), "Authentication failed");
+        } else {
+        mapper.writeValue(response.getWriter(), "Authentication failed");}
     }
 }
  // 인증 실패 = 401 UNAUTHORIZED

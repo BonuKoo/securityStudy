@@ -35,8 +35,6 @@ public class FormUserDetailsService implements UserDetailsService {
         ModelMapper mapper = new ModelMapper();
         AccountDto accountDto = mapper.map(account, AccountDto.class);
 
-
-
         return new AccountContext(accountDto,authorities);
     }
 }
