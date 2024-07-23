@@ -1,6 +1,5 @@
 
 /* 로그인 실패 후 '/'로 돌아가기 전까지 5초 간격 설정 */
-<script>
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -30,10 +29,10 @@
                 console.error('Error during login:', error);
             });
         }
-    </script>
+
 
     /* 로그인 반환 바로 수행 */
-    <script>
+
             function login() {
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
@@ -56,4 +55,22 @@
                         console.error('Error during login:', error);
                     });
             }
-        </script>
+    /* 로그 아웃 */
+        function logout() {
+
+            fetch('/api/logout', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if(response.ok){
+                        window.location.replace('/api')
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during login:', error);
+                });
+        }
