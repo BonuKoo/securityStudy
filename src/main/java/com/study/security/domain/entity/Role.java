@@ -1,24 +1,24 @@
 package com.study.security.domain.entity;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.*;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Data
+@Entity
+@Table(name = "ROLE")
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
-@RestController
-@Entity
-public class Role {
+@NoArgsConstructor
+public class Role implements Serializable {
+    @Id
+    @GeneratedValue
     @Column(name = "role_id")
-    @Id @GeneratedValue
     private Long id;
 
     @Column(name = "role_name")
@@ -30,10 +30,11 @@ public class Role {
     @Column(name = "is_expression")
     private String isExpression;
 
-    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "roleSet",cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roleSet", cascade = CascadeType.ALL)
     @OrderBy("orderNum desc")
     private Set<Resources> resourcesSet = new LinkedHashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "userRoles", cascade = CascadeType.ALL)
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "userRoles", cascade = CascadeType.ALL)
     private Set<Account> accounts = new HashSet<>();
 }
