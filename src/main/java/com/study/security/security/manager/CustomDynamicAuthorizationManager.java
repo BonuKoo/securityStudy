@@ -33,23 +33,28 @@ public class CustomDynamicAuthorizationManager implements AuthorizationManager<R
     private final HandlerMappingIntrospector handlerMappingIntrospector;
 
     private final ResourcesRepository resourcesRepository;
+    DynamicAuthorizationService dynamicAuthorizationService ;
 
 
     @PostConstruct
     public void mapping(){
-        DynamicAuthorizationService dynamicAuthorizationService =
+         dynamicAuthorizationService =
                 new DynamicAuthorizationService(
                         new PersistentUrlRoleMapper(resourcesRepository));
 
-         mappings = dynamicAuthorizationService.getUrlRoleMappings()
-                .entrySet()
-                .stream()
-                .map(entry -> new RequestMatcherEntry<>(
-                        new MvcRequestMatcher(handlerMappingIntrospector, entry.getKey()),
-                        customAuthorizationManager(entry.getValue())
-                ))
-                .collect(Collectors.toList());
+        setMapping();
         ;
+    }
+
+    private void setMapping() {
+        mappings = dynamicAuthorizationService.getUrlRoleMappings()
+               .entrySet()
+               .stream()
+               .map(entry -> new RequestMatcherEntry<>(
+                       new MvcRequestMatcher(handlerMappingIntrospector, entry.getKey()),
+                       customAuthorizationManager(entry.getValue())
+               ))
+               .collect(Collectors.toList());
     }
 
     @Override
@@ -87,4 +92,8 @@ public class CustomDynamicAuthorizationManager implements AuthorizationManager<R
         return null;
     }
 
+    public synchronized void reload() {
+        mappings.clear();;
+        setMapping();
+    }
 }
